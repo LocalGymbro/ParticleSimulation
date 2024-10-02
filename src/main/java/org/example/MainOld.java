@@ -56,13 +56,13 @@ public class MainOld {
 		}
 
 		// Sonnensystem mit Planeten erstellen
-		ParticleSystem particleSystem = new ParticleSystem(
-				fensterGroesse,
-				objs.toArray(new PhysicsObject[0])
-				//feld
-		);
+		//ParticleSystem particleSystem = new ParticleSystem(
+		//		fensterGroesse,
+		//		objs.toArray(new PhysicsObject[0])
+		//		//feld
+		//);
 
 		// Applikation/Fenster erstellen
-		new Lwjgl3Application(particleSystem, konfiguration);
+		//new Lwjgl3Application(particleSystem, konfiguration);
 	}
 }

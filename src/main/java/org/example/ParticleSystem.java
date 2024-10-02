@@ -12,6 +12,7 @@ import com.crashinvaders.vfx.VfxManager;
 import com.crashinvaders.vfx.effects.BloomEffect;
 import com.crashinvaders.vfx.effects.MotionBlurEffect;
 import com.crashinvaders.vfx.effects.util.MixEffect;
+import org.example.data.SpatialGrid;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -29,10 +30,13 @@ public class ParticleSystem extends ApplicationAdapter {
 	private VfxManager vfxManager;
 	private BloomEffect bloomEffect;
 
-	public ParticleSystem(Vector2 fenterDimensionen, PhysicsObject[] planeten) {
+	private SpatialGrid grid;
+
+	public ParticleSystem(Vector2 fenterDimensionen, PhysicsObject[] planeten, SpatialGrid grid) {
 		this.objekte = planeten;
 		this.fensterDimensionen = fenterDimensionen;
 		this.feld = null;
+		this.grid = grid;
 	}
 
 	@Override
@@ -87,26 +91,27 @@ public class ParticleSystem extends ApplicationAdapter {
 			//System.out.println("Field Cleared: " + this.feld.getMasse());
 		}
 
-		for (int i = 0; i < this.objekte.length; i++) {
-			if (objekte[i] instanceof Particle) {
-				objekte[i].wendeProzedualeBewegungAn(objekte[i].getProzedualeBewegung(deltaTime));
-				Vector2 oldPos = new Vector2(objekte[i].getPosition());
-				Vector2 newPos = new Vector2(
-						(oldPos.x + this.fensterDimensionen.x) % this.fensterDimensionen.x,
-						(oldPos.y + this.fensterDimensionen.y) % this.fensterDimensionen.y
-				);
-			/*newPos = new Vector2(
-					this.fensterDimensionen.x-newPos.x % this.fensterDimensionen.x,
-					this.fensterDimensionen.y-newPos.y % this.fensterDimensionen.y
-			);*/
-				objekte[i].setPosition(newPos);
-			}
-		}
+		//for (int i = 0; i < this.objekte.length; i++) {
+		//	if (objekte[i] instanceof Particle) {
+		//		objekte[i].wendeProzedualeBewegungAn(objekte[i].getProzedualeBewegung(deltaTime, grid));
+		//		Vector2 oldPos = new Vector2(objekte[i].getPosition());
+		//		Vector2 newPos = new Vector2(
+		//				(oldPos.x + this.fensterDimensionen.x) % this.fensterDimensionen.x,
+		//				(oldPos.y + this.fensterDimensionen.y) % this.fensterDimensionen.y
+		//		);
+		//	/*newPos = new Vector2(
+		//			this.fensterDimensionen.x-newPos.x % this.fensterDimensionen.x,
+		//			this.fensterDimensionen.y-newPos.y % this.fensterDimensionen.y
+		//	);*/
+		//		objekte[i].setPosition(newPos);
+		//	}
+		//}
 
 		// Zeichne Objekte
 		for (int i = 0; i < this.objekte.length; i++) {
 			PhysicsObject objekt = objekte[i];
 			objekt.zeichne(this.formZeichner);
+			if (objekt instanceof Particle p) grid.addParticleToGrid(p);
 		}
 
 		formZeichner.end();

@@ -16,6 +16,8 @@ public class SpatialGrid {
 	private int rows;
 
 	public SpatialGrid(int cellSize, Vector2 res) {
+		this.cellSize = cellSize;
+		this.res = res;
 		this.cols = (int)((res.x/ cellSize)+0.5f);
 		this.rows = (int)((res.y/ cellSize)+0.5f);
 
@@ -23,14 +25,15 @@ public class SpatialGrid {
 		for (int i = 0; i < cols; i++) {
 			ArrayList<ArrayList<Particle>> temp = new ArrayList<>();
 			for (int j = 0; j < rows; j++) {
-				temp.add(new ArrayList<>());
+				temp.add(new ArrayList<Particle>());
 			}
 			this.grid.add(temp);
 		}
 	}
 
 	private ArrayList<ArrayList<Particle>> getColumn(int pos) {
-		return grid.get(pos);
+		int adjustedPos = Math.abs(pos%this.cols);
+		return grid.get(adjustedPos);
 	}
 
 	/**
@@ -40,7 +43,16 @@ public class SpatialGrid {
 	 * @return Arraylist of all particles in this cell
 	 */
 	public ArrayList<Particle> getCell(int col, int row) {
-		return this.getColumn(col).get(row);
+		int adjustedPos = Math.abs(row%this.rows);
+		return this.getColumn(col).get(adjustedPos);
+	}
+
+	private int getCurrentCol(float posX) {
+		return (int)(posX/res.x*cols);
+	}
+
+	private int getCurrentRow(float posY) {
+		return (int)(posY/res.y*rows);
 	}
 
 	/**
@@ -60,21 +72,21 @@ public class SpatialGrid {
 		@SuppressWarnings("unchecked") ArrayList<Particle>[] cells = new ArrayList[area];
 
 		// TODO: Maybe just save this in the Particle instead of calculating it here every time
-		int currentCol = (int)(pos.x/res.x*cols);
-		int currentRow = (int)(pos.y/res.y*rows);
+		int currentCol = getCurrentCol(pos.x);
+		int currentRow = getCurrentRow(pos.y);
 
 		// Calculate left and bottom bounds position
 		int leftCell = currentCol-(cellRadius-1);
 		int bottomCell = currentRow-(cellRadius-1);
 
 		// Calculate opposing bounding cell positions
-		int rightCell = leftCell+sideLength;
-		int topCell = bottomCell+sideLength;
+		int rightCell = leftCell+sideLength-1;
+		int topCell = bottomCell+sideLength-1;
 
 		// Get all cells in the area
 		int cellIndex = 0;
-		for (int i = leftCell; i < rightCell; i++) {
-			for (int j = bottomCell; j < topCell; j++) {
+		for (int i = leftCell; i <= rightCell; i++) {
+			for (int j = bottomCell; j <= topCell; j++) {
 				cells[cellIndex] = getCell(i, j);
 				cellIndex++;
 			}
@@ -102,5 +114,20 @@ public class SpatialGrid {
 	public ArrayList<Particle>[] getCellsInRadius(float radius, Vector2 pos) {
 		int cellRadius = convertRadiusToCellRadius(radius);
 		return getCellsInCellRadius(cellRadius, pos);
+	}
+
+	public void addParticleToGrid(Particle particle) {
+		Vector2 pos = particle.getPosition();
+		int currentCol = getCurrentCol(pos.x);
+		int currentRow = getCurrentRow(pos.y);
+
+		getCell(currentCol, currentRow).add(particle);
+		if (particle.getCell() != null) {
+			Vector2 cell = particle.getCell();
+			int col = (int) cell.x;
+			int row = (int) cell.y;
+			getCell(col, row).remove(particle);
+		}
+		particle.setCell(new Vector2(currentCol, currentRow));
 	}
 }
