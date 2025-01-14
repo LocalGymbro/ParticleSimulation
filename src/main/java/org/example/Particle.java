@@ -4,9 +4,10 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import org.example.data.SpatialGrid;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Particle implements PhysicsObject {
 
@@ -104,54 +105,69 @@ public class Particle implements PhysicsObject {
 		return a;
 	}
 
+	private double bezierInterpolate(double t, double p0, double p1, double p2, double p3) {
+		if (t < 0 || t > 1) {
+			throw new IllegalArgumentException("t must be between 0 and 1");
+		}
+
+		double oneMinusT = 1 - t;
+		double oneMinusTSquared = oneMinusT * oneMinusT;
+		double oneMinusTCubed = oneMinusTSquared * oneMinusT;
+		double tSquared = t * t;
+		double tCubed = tSquared * t;
+
+		return oneMinusTCubed * p0 +
+				3 * oneMinusTSquared * t * p1 +
+				3 * oneMinusT * tSquared * p2 +
+				tCubed * p3;
+	}
+
 	@Override
-	public Vector2 getProzedualeBewegung(float deltaTime, SpatialGrid grid) {
-		ArrayList<Particle>[] cells = grid.getCellsInRadius(200, this.position);
+	public Vector2 getProzedualeBewegung(float deltaTime) {
+		//ArrayList<Particle>[] cells = grid.getCellsInRadius(200, this.position);
 
 		// Beschleunigung relativ zu den anderen Himmelskoerpern berechnen
-		for (int i = 0; i < cells.length; i++) {
-			ArrayList<Particle> cell = cells[i];
-			for (int j = 0; j < cell.size(); j++) {
-				float dist = this.position.dst2(cell.get(j).getPosition());
-				float m = this.masse * cell.get(j).getMasse();
-				float fG = this.G * (m / dist);
+		for (int i = 0; i < this.andereObjekte.length; i++) {
+			float dist = this.position.dst2(this.andereObjekte[i].getPosition());
+			float m = this.masse * this.andereObjekte[i].getMasse();
+			float fG = this.G * (m/dist);
 
-				//Vector2 temp = new Vector2(0.0f, fG);
-				Vector2 temp = new Vector2(0.0f, 0.0f);
-				Vector2 diffVec = new Vector2(this.position).sub(cell.get(j).getPosition());
-				Vector2 dir = new Vector2(0.0f, 1.0f);
+			//Vector2 temp = new Vector2(0.0f, fG);
+			Vector2 temp = new Vector2(0.0f, 0.0f);
+			Vector2 diffVec = new Vector2(this.position).sub(this.andereObjekte[i].getPosition());
+			Vector2 dir = new Vector2(0.0f, 1.0f);
 
-				float x = diffVec.x;
-				float y = diffVec.y;
-				// I
-				if (x >= 0 && y > 0) {
-					dir = new Vector2(-1.0f, 0.0f);
-					temp = new Vector2(-fG, 0.0f);
-				}
-				//II
-				else if (x > 0 && y <= 0) {
-					dir = new Vector2(0.0f, 1.0f);
-					temp = new Vector2(0.0f, fG);
-				}
-				// III
-				else if (x <= 0 && y < 0) {
-					dir = new Vector2(1.0f, 0.0f);
-					temp = new Vector2(fG, 0.0f);
-				}
-				// IV
-				else if (x < 0 && y >= 0) {
-					dir = new Vector2(0.0f, -1.0f);
-					temp = new Vector2(0.0f, -fG);
-				}
-				diffVec = new Vector2(Math.abs(diffVec.x), Math.abs(diffVec.y));
-
-				//if (diffVec.x < 0.0f) temp.scl(-1.0f);
-				float winkel = getAngleBetween(dir, diffVec);
-				//temp = new Vector2(Math.abs(temp.x*dir.x), Math.abs(temp.y*dir.y));
-				temp.rotateRad(winkel);
-				//Vector2 temp = new Vector2(this.andereObjekte[i].getPosition()).add(new Vector2(this.andereObjekte[i].getPosition()).sub(this.position)).scl(fG);
-				this.geschwindigkeit.add(temp);
+			float x = diffVec.x;
+			float y = diffVec.y;
+			// I
+			if (x >= 0 && y > 0) {
+				dir = new Vector2(-1.0f, 0.0f);
+				temp = new Vector2(-fG, 0.0f);
 			}
+			//II
+			else if (x > 0 && y <= 0) {
+				dir = new Vector2(0.0f, 1.0f);
+				temp = new Vector2(0.0f, fG);
+			}
+			// III
+			else if (x <= 0 && y < 0) {
+				dir = new Vector2(1.0f, 0.0f);
+				temp = new Vector2(fG, 0.0f);
+			}
+			// IV
+			else if (x < 0 && y >= 0) {
+				dir = new Vector2(0.0f, -1.0f);
+				temp = new Vector2(0.0f, -fG);
+			}
+			diffVec = new Vector2(Math.abs(diffVec.x), Math.abs(diffVec.y));
+
+			//if (diffVec.x < 0.0f) temp.scl(-1.0f);
+			float winkel = getAngleBetween(dir,diffVec);
+			//temp = new Vector2(Math.abs(temp.x*dir.x), Math.abs(temp.y*dir.y));
+			temp.rotateRad(winkel);
+			//Vector2 temp = new Vector2(this.andereObjekte[i].getPosition()).add(new Vector2(this.andereObjekte[i].getPosition()).sub(this.position)).scl(fG);
+			temp = temp.scl(deltaTime);
+			this.geschwindigkeit.add(temp.scl(20));
 		}
 
 		// Bewgegung anwenden
@@ -163,7 +179,7 @@ public class Particle implements PhysicsObject {
 				(Math.abs(this.geschwindigkeit.y) % 1500) * yNeg
 		);*/
 		Vector2 diff = new Vector2(this.geschwindigkeit);
-		return diff.scl(deltaTime);
+		return diff.scl(deltaTime).scl(2);
 	}
 
 	@Override

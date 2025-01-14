@@ -3,7 +3,6 @@ package org.example;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import org.example.data.SpatialGrid;
 
 public class SchwerkraftFeld implements PhysicsObject {
     private float mass;
@@ -44,7 +43,7 @@ public class SchwerkraftFeld implements PhysicsObject {
     }
 
     @Override
-    public Vector2 getProzedualeBewegung(float deltaTime, SpatialGrid grid) {
+    public Vector2 getProzedualeBewegung(float deltaTime) {
         return null;
     }
 
