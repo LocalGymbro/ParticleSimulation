@@ -65,6 +65,7 @@ public class SubdividedQuadtree implements Quadtree {
             this.southwest.update();
         }
     }
+    // Hello
 
     public void unSubdivide() {
         var x = this.northwest.getRect().getX();
