@@ -11,6 +11,8 @@ public class SubdividedQuadtree implements Quadtree {
     private Quadtree northwest = null;
     private Quadtree southeast = null;
     private Quadtree southwest = null;
+    private int level; // Anzahl der Tiefe im Quadtree
+    private SubdividedQuadtree[] nodes;
 
     private SubdividedQuadtree parent;
 
@@ -21,7 +23,9 @@ public class SubdividedQuadtree implements Quadtree {
     public SubdividedQuadtree(SubdividedQuadtree parent, Rectangle bounds) {
         this.parent = parent;
         this.bounds = bounds;
+        this.nodes = new SubdividedQuadtree[4];
     }
+
 
     @Override
     public Quadtree getParent() {
@@ -32,6 +36,7 @@ public class SubdividedQuadtree implements Quadtree {
     public Rectangle getRect() {
         return bounds;
     }
+
 
     @Override
     public void getParticles(ArrayList<Particle> particles) {

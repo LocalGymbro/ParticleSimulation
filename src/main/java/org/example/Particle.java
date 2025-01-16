@@ -2,6 +2,7 @@ package org.example;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
@@ -11,6 +12,7 @@ import java.util.List;
 
 public class Particle implements PhysicsObject {
 
+	public Quaternion getProzedualeBewegung;
 	private Vector2 position;
 	private int radius;
 	private Vector3 farbe;
@@ -207,5 +209,10 @@ public class Particle implements PhysicsObject {
 
 	public void setCell(Vector2 cell) {
 		this.cell = cell;
+	}
+
+	public void applyForce(Vector2 force) {
+		Vector2 acceleration = force.scl(1 / masse); // Berechnung der Beschleunigung
+		geschwindigkeit.add(acceleration);
 	}
 }
